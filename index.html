@@ -1,0 +1,1372 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Daraza ATM</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            margin: 0;
+            background-color: #f2f8f9;
+        }
+        header {
+            font-size: 70px;
+            margin-bottom: 20px;
+            font-weight: bold;
+            color: #105297;
+        }
+        .button-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 20px;
+            width: 75%; /* Three-quarters of the page width */
+            height: 75%;
+        }
+        .btn {
+            background-color: #054a94;
+            color: white;
+            border: none;
+            padding: 20px;
+            font-size: 50px;
+            cursor: pointer;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-grow: 1;
+            justify-content: center;
+            transition: transform 0.1s, background-color 0.1s;
+        }
+        .btn:active {
+            transform: scale(0.98);
+            background-color: #0c325a;
+        }
+        #mtnBtn {
+            /* background-color: #debb0d; */
+            background-color: #FFCC08;
+        }
+        #airtelBtn {
+            background-color: #e32222;
+        }
+        .btn svg {
+            width: 28px;
+            height: 28px;
+        }
+        #mtnWithdraw, #airtelWithdraw {
+            display: none;
+            position: fixed;
+            z-index: 1;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+        }
+        #mtnWithdraw {
+            /* background-color: #debb0d; */
+            background-color: #FFCC08;
+        }
+        #airtelWithdraw {
+            background-color: #e32222;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 500px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+        }
+        .modal-content h2 {
+            margin-top: 0;
+            text-align: center;
+        }
+        .modal-content input {
+            width: 99%;
+            padding: 10px;
+            margin: 10px 0;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+             transition: all 0.3s ease;
+         }
+
+         .modal-content input:focus {
+             outline: none;
+             border-color: #007bff;
+             box-shadow: 0 0 10px rgba(0, 123, 255, 0.3);
+         }
+
+         .modal-content input.guide {
+             border: 2px solid #ff6b6b;
+             animation: blink 1s infinite;
+         }
+
+         .modal-content input.error {
+             border: 2px solid #dc3545;
+             background-color: #f8d7da;
+         }
+
+         .modal-content input.success {
+             border: 2px solid #28a745;
+             background-color: #d4edda;
+         }
+
+         @keyframes blink {
+             0%, 50% { opacity: 1; }
+             51%, 100% { opacity: 0.5; }
+         }
+
+         .error-message {
+             color: #dc3545;
+             font-size: 14px;
+             margin-top: 5px;
+             display: none;
+         }
+
+         .success-message {
+             color: #28a745;
+             font-size: 14px;
+             margin-top: 5px;
+             display: none;
+         }
+
+         .modal-content button.guide {
+             border: 2px solid #ff6b6b;
+             animation: blink 1s infinite;
+        }
+        .modal-content button {
+            background-color: #092c51;
+            color: white;
+            border: none;
+            padding: 10px;
+            width: 100%;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+        .modal-content button:hover {
+            background-color: #054a94;
+        }
+
+         /* Service Selection Screen */
+         .service-selection {
+             display: none;
+             position: fixed;
+             z-index: 1000;
+             left: 0;
+             top: 0;
+             width: 100%;
+             height: 100%;
+             background-color: rgba(0,0,0,0.5);
+             justify-content: center;
+             align-items: center;
+         }
+
+         .service-selection.mtn {
+             background-color: #FFCC08;
+         }
+
+         .service-selection.airtel {
+             background-color: #e32222;
+         }
+
+         .service-content {
+             background-color: white;
+             padding: 40px;
+             border-radius: 8px;
+             width: 80%;
+             max-width: 800px;
+             box-shadow: 0 5px 15px rgba(0, 0, 0, 0.3);
+             text-align: center;
+         }
+
+         .service-content h2 {
+             margin-top: 0;
+             margin-bottom: 40px;
+             font-size: 36px;
+             color: #2c3e50;
+         }
+
+         .service-buttons {
+             display: flex;
+             gap: 40px;
+             justify-content: center;
+         }
+
+         .service-btn {
+             background-color: #054a94;
+             color: white;
+             border: none;
+             padding: 40px;
+             font-size: 50px;
+             cursor: pointer;
+             border-radius: 8px;
+             display: flex;
+             align-items: center;
+             gap: 10px;
+             flex-grow: 1;
+             justify-content: center;
+             transition: transform 0.1s, background-color 0.1s;
+             min-height: 200px;
+             flex-direction: column;
+         }
+
+         .service-btn:active {
+             transform: scale(0.98);
+             background-color: #0c325a;
+         }
+
+         .service-btn.deposit {
+             background-color: #00ff88;
+             color: #000;
+         }
+
+         .service-btn.withdraw {
+             background-color: #ff6b6b;
+             color: white;
+         }
+
+         .service-icon {
+             margin-bottom: 20px;
+             display: flex;
+             align-items: center;
+             justify-content: center;
+         }
+
+         .service-icon svg {
+             transition: transform 0.2s ease;
+         }
+
+         .service-btn:hover .service-icon svg {
+             transform: scale(1.1);
+         }
+
+         .service-btn:active .service-icon svg {
+             transform: scale(0.95);
+         }
+
+         .deposit-icon svg {
+             color: #000;
+         }
+
+         .withdraw-icon svg {
+             color: white;
+         }
+
+         /* Keypad styles */
+         .keypad {
+             display: grid;
+             grid-template-columns: repeat(3, 1fr);
+             gap: 15px;
+             margin: 20px 0;
+             max-width: 300px;
+             margin-left: auto;
+             margin-right: auto;
+         }
+
+         .key {
+             background-color: #f8f9fa;
+             border: 1px solid #dee2e6;
+             border-radius: 8px;
+             color: #495057;
+             font-size: 24px;
+             font-weight: 600;
+             height: 60px;
+             cursor: pointer;
+             transition: all 0.2s ease;
+             display: flex;
+             align-items: center;
+             justify-content: center;
+         }
+
+         .key:hover {
+             background-color: #e9ecef;
+             transform: translateY(-2px);
+         }
+
+         .key:active {
+             transform: translateY(0);
+         }
+
+         .key.clear {
+             background-color: #dc3545;
+             color: white;
+         }
+
+         .key.enter {
+             background-color: #28a745;
+             color: white;
+         }
+
+         /* Quick amounts */
+         .quick-amounts {
+             display: grid;
+             grid-template-columns: repeat(3, 1fr);
+             gap: 10px;
+             margin: 20px 0;
+             max-width: 400px;
+             margin-left: auto;
+             margin-right: auto;
+         }
+
+         .quick-amount {
+             background-color: #f8f9fa;
+             border: 1px solid #dee2e6;
+             border-radius: 8px;
+             color: #495057;
+             font-size: 16px;
+             font-weight: 500;
+             padding: 15px;
+             cursor: pointer;
+             transition: all 0.2s ease;
+         }
+
+         .quick-amount:hover {
+             background-color: #e9ecef;
+             border-color: #007bff;
+         }
+
+         .quick-amount:active {
+             transform: scale(0.95);
+         }
+
+         /* Instructions */
+         .instructions {
+             background-color: #e3f2fd;
+             border: 1px solid #2196f3;
+             border-radius: 8px;
+             padding: 20px;
+             margin: 20px 0;
+             color: #1976d2;
+             font-size: 16px;
+             line-height: 1.6;
+         }
+
+         .instructions .highlight {
+             font-weight: 600;
+             color: #0d47a1;
+         }
+
+         /* Transaction Modal */
+         #transactionModal {
+             position: fixed;
+             z-index: 1001;
+             left: 0;
+             top: 0;
+             width: 100%;
+             height: 100%;
+             background-color: rgba(0,0,0,0.5);
+             justify-content: center;
+             align-items: center;
+         }
+
+         #transactionModal.mtn {
+             background-color: rgba(255, 204, 8, 0.8);
+         }
+
+         #transactionModal.airtel {
+             background-color: rgba(227, 34, 34, 0.8);
+         }
+
+         /* Hide main buttons when modals are active */
+         body.modal-active .button-container {
+             display: none;
+         }
+
+         body.modal-active header {
+             display: none;
+         }
+
+         /* Processing Screen */
+         .processing-screen {
+             display: none;
+             position: fixed;
+             z-index: 1002;
+             left: 0;
+             top: 0;
+             width: 100%;
+             height: 100%;
+             background-color: rgba(0,0,0,0.8);
+             justify-content: center;
+             align-items: center;
+         }
+
+         .processing-content {
+             background-color: white;
+             padding: 40px;
+             border-radius: 12px;
+             width: 80%;
+             max-width: 600px;
+             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+             text-align: center;
+         }
+
+         .processing-content h2 {
+             margin-top: 0;
+             margin-bottom: 30px;
+             font-size: 32px;
+             color: #2c3e50;
+         }
+
+         .processing-animation {
+             width: 80px;
+             height: 80px;
+             margin: 0 auto 30px;
+             position: relative;
+         }
+
+         .spinner {
+             width: 80px;
+             height: 80px;
+             border: 4px solid #f3f3f3;
+             border-top: 4px solid #007bff;
+             border-radius: 50%;
+             animation: spin 1s linear infinite;
+         }
+
+         .pulse-dot {
+             width: 20px;
+             height: 20px;
+             background-color: #007bff;
+             border-radius: 50%;
+             position: absolute;
+             top: 50%;
+             left: 50%;
+             transform: translate(-50%, -50%);
+             animation: pulse 1.5s ease-in-out infinite;
+         }
+
+         .processing-message {
+             font-size: 18px;
+             color: #495057;
+             margin-bottom: 20px;
+             line-height: 1.6;
+         }
+
+         .pin-instruction {
+             background-color: #fff3cd;
+             border: 1px solid #ffeaa7;
+             border-radius: 8px;
+             padding: 20px;
+             margin: 20px 0;
+             color: #856404;
+             font-size: 16px;
+             font-weight: 500;
+         }
+
+         .pin-instruction .highlight {
+             font-weight: 600;
+             color: #d63031;
+         }
+
+         .processing-steps {
+             text-align: left;
+             margin: 20px 0;
+         }
+
+         .processing-steps div {
+             padding: 8px 0;
+             font-size: 16px;
+             color: #495057;
+         }
+
+         .processing-steps .step {
+             display: flex;
+             align-items: center;
+             margin-bottom: 10px;
+         }
+
+         .processing-steps .step-icon {
+             width: 20px;
+             height: 20px;
+             margin-right: 10px;
+             border-radius: 50%;
+             background-color: #28a745;
+             color: white;
+             display: flex;
+             align-items: center;
+             justify-content: center;
+             font-size: 12px;
+             font-weight: bold;
+         }
+
+         .processing-steps .step-icon.pending {
+             background-color: #6c757d;
+         }
+
+         .processing-steps .step-icon.processing {
+             background-color: #007bff;
+             animation: pulse 1s ease-in-out infinite;
+         }
+
+         @keyframes spin {
+             0% { transform: rotate(0deg); }
+             100% { transform: rotate(360deg); }
+         }
+
+         @keyframes pulse {
+             0%, 100% { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+             50% { opacity: 0.5; transform: translate(-50%, -50%) scale(1.2); }
+         }
+    </style>
+</head>
+<body>
+
+<header>Daraza Pay</header>
+
+<div class="button-container">
+    <button class="btn" id="mtnBtn">
+        <img src="MTN-MoMo.png" class="logo" alt="Momo Logo">
+    </button>
+    <button class="btn" id="airtelBtn">
+        <img src="airtelmoney.jpg" class="logo" alt="Airtel Logo">
+    </button>
+</div>
+
+ <!-- Service Selection Screen -->
+ <div id="serviceSelection" class="service-selection" style="display: none;">
+     <div class="service-content">
+         <h2 id="serviceTitle">Select Service</h2>
+         <div class="service-buttons">
+            <button class="service-btn deposit" onclick="selectService('deposit')">
+                <div class="service-icon deposit-icon">
+                    <svg id="Layer_1" data-name="Layer 1" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 122.88 91.98" width="60" height="60">
+                        <title>deposit</title>
+                        <path d="M103.85,57.91a2.47,2.47,0,0,1,2.27,1.5l16.47,28.94c.45.87.25,2.62.23,3.63H.05l0-2.5a2.47,2.47,0,0,1,.37-1.27l16.7-29a2.45,2.45,0,0,1,2.17-1.31H50L43.21,46.19a12.27,12.27,0,0,1-1.07-1.54L41.08,42.8h0a1.5,1.5,0,0,1-.31.24l-1.76,1-.31.14a4.93,4.93,0,0,1-5.84-1.3,1.6,1.6,0,0,1-.47.43l-1.76,1a1.69,1.69,0,0,1-.31.13,5,5,0,0,1-6.15-1.64A1,1,0,0,1,24,43l-1.76,1-.31.14c-5.26,2-8-2.8-10.16-6.7l-.59-1L8.52,32l-.08-.14C6.42,28,6.5,24.63,6.59,20.79c0-.65,0-1.3,0-2.21,0,0,0,0,0-.06A12.51,12.51,0,0,1,7.68,13.1,8.08,8.08,0,0,1,11,9.49L26.18.7A4.61,4.61,0,0,1,30.85.57a11.76,11.76,0,0,1,3.92,3.54l17.31,8.07.07,0c.22.1.46.2.72.33L60.71,8,89.53,57.91ZM51,48.84,60,64.58a5.05,5.05,0,0,1,6.91,1.85l11.73-6.77a5.07,5.07,0,0,1,1.85-6.91L61.7,20.14a5.08,5.08,0,0,1-6.92-1.85l-9,5.21.36.61L53.44,36.8a10.44,10.44,0,0,1,2.77-2.32,10.08,10.08,0,1,1-3.68,13.77l-.07-.12-.28.16a6.16,6.16,0,0,1-1.23.55ZM42.78,18.35,49,14.74,32.93,8a1.39,1.39,0,0,1-.55-.46,10.19,10.19,0,0,0-3.07-3,1.85,1.85,0,0,0-1.9,0L12.83,13a5.21,5.21,0,0,0-2.11,2.34c-.53,1.1-.37,2.25-.37,3.92a.31.31,0,0,1,0,.09c0,.63,0,1.45,0,2.24-.08,3.43-.52,5.4,1.15,8.64l2.6,4.29a.57.57,0,0,1,.12.18c0,.06.27.47.58,1,1.63,2.89,3.63,6.47,6.52,5.39l1.29-.75c-.45-.82-.88-1.67-1.29-2.49s-.71-1.45-1.09-2.1a1.46,1.46,0,1,1,2.53-1.47c.38.66.78,1.45,1.19,2.27,1.4,2.81,3,6,5.37,5.16l1.68-1a2.71,2.71,0,0,1,.3-.13c-.58-1-1.11-2-1.61-3-.37-.74-.71-1.44-1.09-2.1A1.46,1.46,0,1,1,31.1,34c.38.65.77,1.45,1.19,2.27,1.39,2.8,3,6,5.36,5.16l1.69-1a1.25,1.25,0,0,1,.36-.15L36.85,35.4a1.46,1.46,0,0,1,2.53-1.47l5.35,9.26c1.28,2.22,3,3.11,4.5,3a3.33,3.33,0,0,0,1.51-.45,3,3,0,0,0,.64-.48h0c0-.12.11-.18.24-.25a2.33,2.33,0,0,0,.27-.35,4.79,4.79,0,0,0,0-4.71l0-.08c-.1-.21-.22-.43-.34-.65L40.35,20a1.47,1.47,0,0,1,2.43-1.64Zm10,44.49H20.72L6.54,87H116.38l-14-24.2H85.17L68.79,72.3H83.91a2.47,2.47,0,1,1,0,4.93H42.57a2.46,2.46,0,1,1,0-4.91H58.29l-5.47-9.46Z" fill="currentColor"/>
+                    </svg>
+                </div>
+                <div style="font-size: 28px; font-weight: 600;">Deposit</div>
+            </button>
+             <button class="service-btn withdraw" onclick="selectService('withdraw')">
+                 <div class="service-icon withdraw-icon">
+                     <svg version="1.1" xmlns="http://www.w3.org/2000/svg" width="60" height="60" viewBox="0 0 512 512">
+                         <path d="M0 0 C135.3 0 270.6 0 410 0 C410 22.77 410 45.54 410 69 C404.39 69 398.78 69 393 69 C393 91.44 393 113.88 393 137 C364.95 137 336.9 137 308 137 C308.04640625 150.08011719 308.0928125 163.16023438 308.140625 176.63671875 C308.16105577 184.90820627 308.18047635 193.17967557 308.1953125 201.45117188 C308.21906577 214.58884919 308.24702028 227.72642404 308.30175781 240.86401367 C308.34160034 250.43119644 308.36742683 259.99829626 308.37635398 269.56555969 C308.38157309 274.63237483 308.39385706 279.69895261 308.42292023 284.76569176 C308.45004845 289.53368264 308.45845022 294.30133815 308.45243073 299.06939888 C308.45353212 300.820167 308.46150147 302.57094621 308.4768219 304.32164764 C308.49670973 306.71127926 308.49194432 309.09964293 308.48101807 311.48930359 C308.49266943 312.18289197 308.5043208 312.87648035 308.51632524 313.59108657 C308.47328846 317.07076238 308.03770699 318.94051161 306.15743637 321.90691853 C302.14153775 325.80302556 297.65838079 325.13629142 292.39770508 325.11352539 C291.51944565 325.11367142 290.64118622 325.11381744 289.73631287 325.1139679 C286.83069395 325.11327072 283.92513898 325.10548739 281.01953125 325.09765625 C279.00599706 325.09579138 276.99246242 325.0943678 274.97892761 325.09336853 C269.67708078 325.08954879 264.37526131 325.07972312 259.07342529 325.06866455 C253.66418833 325.05843877 248.25494696 325.0538684 242.84570312 325.04882812 C232.23045673 325.03810039 221.61523064 325.02103046 211 325 C211.59767685 326.05653778 212.1953537 327.11307556 212.81114197 328.20162964 C232.40766651 363.77087783 233.76427636 395.8067595 232.72324121 435.22912765 C232.54429509 442.22561066 232.48967252 449.22064791 232.44690037 456.21907234 C232.4054969 462.97309281 232.31963084 469.72642431 232.22171283 476.47983694 C232.20153407 477.91333344 232.18282636 479.34685142 232.16560102 480.78038645 C232.10927315 485.45011916 232.0085154 490.11709358 231.88500977 494.78564453 C231.86484299 496.54144585 231.86484299 496.54144585 231.8442688 498.3327179 C231.68830547 503.01844465 231.50530517 506.13666546 229.11303711 510.22395325 C224.5223796 512.84301048 220.51081217 512.69113388 215.30639648 512.63110352 C214.22944519 512.63825882 213.1524939 512.64541412 212.04290771 512.65278625 C208.48520417 512.66968693 204.92875809 512.65026239 201.37109375 512.62890625 C198.89917395 512.62973475 196.4272542 512.63219342 193.95533752 512.63621521 C188.77612719 512.63907409 183.5973491 512.62436117 178.41821289 512.59692383 C171.77432131 512.56282388 165.13120187 512.56886476 158.48727322 512.5875864 C153.38378953 512.59814604 148.28048604 512.58922814 143.17701912 512.57420158 C140.7269653 512.56901295 138.27689273 512.56950979 135.82684135 512.57574654 C132.40555094 512.58118666 128.98537274 512.56086105 125.56420898 512.53344727 C124.04066551 512.54323608 124.04066551 512.54323608 122.48634338 512.55322266 C115.65611743 512.459995 115.65611743 512.459995 112.3510437 510.14285278 C110.45711069 507.13893839 110.80455206 505.31019701 111.19921875 501.80078125 C113.2197846 474.50620891 104.08288932 451.13336972 94.60328293 426.08893585 C93.83658375 424.05399402 93.07959636 422.0156367 92.3241272 419.97650146 C89.86679629 413.37906054 87.3691564 406.81688118 84.60604858 400.34005737 C69.4379019 364.78162241 65.31478138 333.98611874 66.46221924 295.47375488 C66.5986347 290.15313672 66.64442467 284.83348639 66.68704319 279.5114603 C66.74113069 273.11259893 66.83620069 266.7146079 66.94140625 260.31640625 C66.95953432 259.11716585 66.97766239 257.91792545 66.9963398 256.68234444 C67.05668364 253.31399816 67.14528594 249.94772522 67.24438477 246.58032227 C67.25985352 245.59112289 67.27532227 244.60192352 67.29125977 243.58274841 C67.49471929 237.92710201 68.15963137 234.44447678 72 230 C73.58894905 228.80706825 75.18409888 227.61777885 76.84872437 226.53294373 C87.61598785 219.47714284 98.78463899 210.36796028 101.8614502 197.35723877 C105.14432999 177.57310936 102.85648291 156.69910703 102 137 C73.95 137 45.9 137 17 137 C17 114.56 17 92.12 17 69 C11.39 69 5.78 69 0 69 C0 46.23 0 23.46 0 0 Z M18 18 C18 28.89 18 39.78 18 51 C141.42 51 264.84 51 392 51 C392 40.11 392 29.22 392 18 C268.58 18 145.16 18 18 18 Z M35 69 C35 85.5 35 102 35 119 C57.11 119 79.22 119 102 119 C102 113.72 102 108.44 102 103 C96.39 103 90.78 103 85 103 C85 97.06 85 91.12 85 85 C164.2 85 243.4 85 325 85 C325 90.94 325 96.88 325 103 C319.39 103 313.78 103 308 103 C308 108.28 308 113.56 308 119 C330.11 119 352.22 119 375 119 C375 102.5 375 86 375 69 C262.8 69 150.6 69 35 69 Z M155 103 C160.12284638 119.64925074 166.31618403 131.01073488 181.75 139.375 C195.685669 145.78076846 209.68570049 146.59503144 224.08984375 141.28125 C237.96903316 135.1706807 247.48735174 125.13406865 253 111 C253.66 108.36 254.32 105.72 255 103 C222 103 189 103 155 103 Z M120 103 C120 170.32 120 237.64 120 307 C128.25 307 136.5 307 145 307 C145 301.72 145 296.44 145 291 C142.03 291 139.06 291 136 291 C136 273.51 136 256.02 136 238 C141.94 238 147.88 238 154 238 C154 242.95 154 247.9 154 253 C155.4025 252.175 156.805 251.35 158.25 250.5 C163.92851012 247.91148435 168.98377439 247.47387897 175.125 247.4375 C175.9593457 247.42332031 176.79369141 247.40914062 177.65332031 247.39453125 C185.28214222 247.5147175 191.00390163 250.02144448 197.3125 254.1875 C210.39540818 267.87891553 204.60331478 290.73590586 205 307 C233.05 307 261.1 307 290 307 C290 239.68 290 172.36 290 103 C284.72 103 279.44 103 274 103 C274 142.27 274 181.54 274 222 C268.06 222 262.12 222 256 222 C256 195.27 256 168.54 256 141 C250.71620237 144.95700137 250.71620237 144.95700137 245.453125 148.94140625 C230.52618185 159.92488392 212.35754287 163.78509942 194.09521484 161.34814453 C179.54457244 158.93038456 167.14485831 152.37163135 156.390625 142.25 C155.18769003 140.88858285 155.18769003 140.88858285 154 141 C154 167.73 154 194.46 154 222 C148.06 222 142.12 222 136 222 C136 182.73 136 143.46 136 103 C130.72 103 125.44 103 120 103 Z M91.46614265 235.08146572 C83.22908686 243.90209109 83.756477 253.47052281 83.8671875 264.97265625 C83.83957256 267.20357389 83.80756776 269.43444094 83.77146912 271.66523743 C83.70334522 277.58140217 83.74611371 283.49127569 83.82797623 289.40709686 C83.87518245 293.07668313 83.89742141 296.74575013 83.91488647 300.41558838 C84.13612737 334.1359217 86.13504634 363.29980986 100.87333679 394.06886292 C104.58156507 401.81310246 107.59404158 409.73030056 110.421875 417.828125 C110.85618332 419.07095245 111.29049164 420.31377991 111.73796082 421.5942688 C112.59672196 424.06490197 113.45317127 426.53634 114.30722046 429.00860596 C116.26846829 434.65885736 118.28872178 440.28737968 120.31640625 445.9140625 C120.66141174 446.88087952 121.00641724 447.84769653 121.36187744 448.84381104 C121.68146423 449.73276062 122.00105103 450.62171021 122.33032227 451.53759766 C122.60610611 452.30737946 122.88188995 453.07716125 123.16603088 453.87026978 C123.98682051 455.96634317 124.99330051 457.98660103 126 460 C154.71 460 183.42 460 213 460 C216.59210841 390.00112814 216.59210841 390.00112814 192.33837891 327.21337891 C188.30999362 320.10099827 187.72777957 314.36565558 187.76171875 306.30859375 C187.74630768 304.20897785 187.73000469 302.10936834 187.71289062 300.00976562 C187.69640459 296.71575778 187.68753269 293.42221978 187.69458008 290.12817383 C187.69719652 286.93777698 187.66911677 283.74880088 187.63671875 280.55859375 C187.65202888 279.08343544 187.65202888 279.08343544 187.66764832 277.57847595 C187.60084132 272.91165415 187.52699528 270.70253222 184.6574707 266.87719727 C181.36657975 264.55256148 179.49920997 264.38787262 175.5 264.5 C174.3965625 264.5103125 173.293125 264.520625 172.15625 264.53125 C168.72539291 265.04078323 166.77363265 265.9499237 164 268 C162.37436614 271.25126773 162.8709104 274.82537975 162.88647461 278.39697266 C162.88632858 279.26533249 162.88618256 280.13369232 162.8860321 281.02836609 C162.88673039 283.90695672 162.8945189 286.78548314 162.90234375 289.6640625 C162.90420823 291.65660568 162.90563199 293.64914931 162.90663147 295.64169312 C162.91045431 300.89259094 162.92028263 306.14346122 162.93133545 311.39434814 C162.94155457 316.74987414 162.94613017 322.10540457 162.95117188 327.4609375 C162.96190509 337.9739724 162.97950002 348.4869796 163 359 C157.06 359 151.12 359 145 359 C145 347.78 145 336.56 145 325 C141.18888672 324.94392578 141.18888672 324.94392578 137.30078125 324.88671875 C134.83170108 324.84046646 132.36277028 324.78924639 129.89379883 324.73754883 C128.18197762 324.70435831 126.47004852 324.67630811 124.75805664 324.65356445 C122.29266521 324.61990968 119.82825719 324.56759026 117.36328125 324.51171875 C116.60163162 324.50532883 115.83998199 324.4989389 115.05525208 324.49235535 C110.55706444 324.3687551 107.57606233 323.79279553 104 321 C102.34231769 317.68463538 102.81928186 313.97447131 102.79467773 310.32763672 C102.78477814 309.43001617 102.77487854 308.53239563 102.76467896 307.60757446 C102.733015 304.63163925 102.70828719 301.65568806 102.68359375 298.6796875 C102.66302845 296.61987893 102.64203209 294.56007461 102.62062073 292.50027466 C102.56535628 287.07187342 102.5159663 281.64343383 102.46777344 276.21496582 C102.41759032 270.67843196 102.36188763 265.14195399 102.30664062 259.60546875 C102.19900557 248.73702688 102.09757249 237.86853654 102 227 C98.44836424 227 93.86088963 232.78616682 91.46614265 235.08146572 Z M129 478 C129 483.28 129 488.56 129 494 C156.72 494 184.44 494 213 494 C213 488.72 213 483.44 213 478 C185.28 478 157.56 478 129 478 Z" fill="currentColor"/>
+                         <path d="M0 0 C6.28820294 3.67586247 10.77788024 8.65083786 13.0234375 15.64453125 C14.67744807 23.60276246 14.16833706 30.57477282 10.11328125 37.6796875 C5.70480798 43.84941522 0.00952851 48.3914206 -7.5 49.9375 C-15.62390702 51.00643513 -22.90929161 49.32567101 -29.54296875 44.4296875 C-34.81684089 39.59436763 -37.95639578 34.13502122 -38.87890625 27.01171875 C-39.2167812 18.43405467 -36.99514786 12.7536085 -32.375 5.6875 C-23.46390683 -2.83615433 -11.42808858 -5.18050401 0 0 Z M-18.4375 18 C-20.82041984 20.82588909 -20.82041984 20.82588909 -20.625 24.5 C-19.29172189 28.57390532 -18.27130118 29.92613937 -14.5 31.9375 C-10.56658433 32.01777379 -9.02956425 31.3991714 -6.0625 28.8125 C-4.21150237 25.95202436 -4.21150237 25.95202436 -4.5 22.3125 C-5.23633888 18.96931714 -5.23633888 18.96931714 -7.1875 17 C-11.69964918 14.92685038 -14.37080376 15.14466009 -18.4375 18 Z" fill="currentColor" transform="translate(268.5,181.0625)"/>
+                         <path d="M0 0 C5.94 0 11.88 0 18 0 C18 17.49 18 34.98 18 53 C0.84 53 -16.32 53 -34 53 C-34 47.06 -34 41.12 -34 35 C-22.78 35 -11.56 35 0 35 C0 23.45 0 11.9 0 0 Z" fill="currentColor" transform="translate(307,238)"/>
+                         <path d="M0 0 C5.94 0 11.88 0 18 0 C18 5.94 18 11.88 18 18 C12.06 18 6.12 18 0 18 C0 12.06 0 6.12 0 0 Z" fill="currentColor" transform="translate(392,85)"/>
+                         <path d="M0 0 C5.94 0 11.88 0 18 0 C18 5.94 18 11.88 18 18 C12.06 18 6.12 18 0 18 C0 12.06 0 6.12 0 0 Z" fill="currentColor" transform="translate(102,85)"/>
+                     </svg>
+                 </div>
+                 <div style="font-size: 28px; font-weight: 600;">Withdraw</div>
+             </button>
+         </div>
+         <button class="btn btn-secondary" onclick="goBackToNetwork()" style="margin-top: 30px; background-color: #6c757d;">Back</button>
+    </div>
+</div>
+
+ <!-- Universal Transaction Modal -->
+ <div id="transactionModal" style="display: none;">
+    <div class="modal-content">
+         <h2 id="transactionTitle">Transaction</h2>
+         <input type="text" id="phoneInput" placeholder="Enter Phone Number">
+         <div class="error-message" id="phoneError"></div>
+         <input type="text" id="amountInput" placeholder="Enter Amount" readonly style="font-size: 24px; text-align: center; font-weight: bold;">
+         <div class="error-message" id="amountError"></div>
+         <input type="text" id="withdrawCodeInput" placeholder="Enter Withdraw Code (Airtel Only)" maxlength="6" style="display: none;">
+         <div class="error-message" id="withdrawCodeError"></div>
+         
+         <!-- Reusable Quick Amounts -->
+         <div class="quick-amounts" id="quickAmounts" style="display: none;">
+             <div class="quick-amount" onclick="setQuickAmount(1000)">1,000</div>
+             <div class="quick-amount" onclick="setQuickAmount(5000)">5,000</div>
+             <div class="quick-amount" onclick="setQuickAmount(10000)">10,000</div>
+             <div class="quick-amount" onclick="setQuickAmount(20000)">20,000</div>
+             <div class="quick-amount" onclick="setQuickAmount(50000)">50,000</div>
+             <div class="quick-amount" onclick="setQuickAmount(100000)">100,000</div>
+         </div>
+
+         <!-- Reusable Keypad -->
+         <div class="keypad">
+             <div class="key" onclick="addDigit('1')">1</div>
+             <div class="key" onclick="addDigit('2')">2</div>
+             <div class="key" onclick="addDigit('3')">3</div>
+             <div class="key" onclick="addDigit('4')">4</div>
+             <div class="key" onclick="addDigit('5')">5</div>
+             <div class="key" onclick="addDigit('6')">6</div>
+             <div class="key" onclick="addDigit('7')">7</div>
+             <div class="key" onclick="addDigit('8')">8</div>
+             <div class="key" onclick="addDigit('9')">9</div>
+             <div class="key clear" onclick="clearAmount()">Clear</div>
+             <div class="key" onclick="addDigit('0')">0</div>
+             <div class="key enter" onclick="submitTransaction()">Enter</div>
+         </div>
+
+         <!-- Instructions (only for deposits) -->
+         <div class="instructions" id="instructions" style="display: none;">
+             <div class="highlight">Instructions:</div>
+             <div>1. Enter your phone number</div>
+             <div>2. Select amount using quick buttons or keypad</div>
+             <div>3. Double-click quick amounts to increment by that value</div>
+             <div>4. Insert cash into the machine</div>
+             <div>5. Confirm the transaction on your phone</div>
+         </div>
+
+         <div style="display: flex; gap: 20px; margin-top: 20px;">
+             <button type="button" onclick="goBackToService()" style="background-color: #6c757d; color: white; border: none; padding: 10px 20px; border-radius: 4px; cursor: pointer; flex: 1;">Back</button>
+             <button type="submit" onclick="submitTransaction()" style="flex: 1;">Submit</button>
+         </div>
+    </div>
+</div>
+
+<!-- Processing Screen -->
+<div id="processingScreen" class="processing-screen">
+    <div class="processing-content">
+        <h2 id="processingTitle">Processing Transaction</h2>
+        
+        <div class="processing-animation">
+            <div class="spinner"></div>
+            <div class="pulse-dot"></div>
+        </div>
+        
+        <div class="processing-message" id="processingMessage">
+            Please wait while we process your transaction...
+        </div>
+        
+        <div class="pin-instruction" id="pinInstruction" style="display: none;">
+            <div class="highlight">⚠️ PIN Required</div>
+            <div>Please enter your PIN on your phone when prompted to complete the transaction.</div>
+        </div>
+        
+        <div class="processing-steps" id="processingSteps">
+            <div class="step">
+                <div class="step-icon" id="step1">1</div>
+                <div>Validating transaction details</div>
+            </div>
+            <div class="step">
+                <div class="step-icon pending" id="step2">2</div>
+                <div>Connecting to mobile money service</div>
+            </div>
+            <div class="step">
+                <div class="step-icon pending" id="step3">3</div>
+                <div>Processing payment</div>
+            </div>
+            <div class="step">
+                <div class="step-icon pending" id="step4">4</div>
+                <div>Completing transaction</div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Global variables
+    let selectedNetwork = '';
+    let selectedService = '';
+    let currentAmount = '';
+    let lastClickTime = 0;
+    let inactivityTimer = null;
+    let activeField = null; // Track which field is currently active
+
+    // Get elements
+    const serviceSelection = document.getElementById('serviceSelection');
+    const transactionModal = document.getElementById('transactionModal');
+    const mtnBtn = document.getElementById('mtnBtn');
+    const airtelBtn = document.getElementById('airtelBtn');
+
+    // Inactivity timer functions
+    function resetInactivityTimer() {
+        clearTimeout(inactivityTimer);
+        inactivityTimer = setTimeout(() => {
+            location.reload();
+        }, 30000); // 30 seconds
+    }
+
+    function trackActivity() {
+        resetInactivityTimer();
+    }
+
+    // Initialize activity tracking
+    document.addEventListener('click', trackActivity);
+    document.addEventListener('keypress', trackActivity);
+    document.addEventListener('mousemove', trackActivity);
+
+    // Network selection
+    mtnBtn.onclick = function() {
+        selectedNetwork = 'mtn';
+        showServiceSelection();
+    }
+    
+    airtelBtn.onclick = function() {
+        selectedNetwork = 'airtel';
+        showServiceSelection();
+    }
+
+    // Service selection
+    function showServiceSelection() {
+        const serviceTitle = document.getElementById('serviceTitle');
+        const networkNames = {
+            'mtn': 'MTN Mobile Money',
+            'airtel': 'Airtel Money'
+        };
+        serviceTitle.textContent = `${networkNames[selectedNetwork]} - Select Service`;
+        
+        // Set background color based on network
+        serviceSelection.className = `service-selection ${selectedNetwork}`;
+        serviceSelection.style.display = "flex";
+        
+        // Add modal-active class to body
+        document.body.classList.add('modal-active');
+    }
+
+    function selectService(service) {
+        selectedService = service;
+        serviceSelection.style.display = "none";
+        showTransactionModal();
+    }
+
+    function goBackToNetwork() {
+        serviceSelection.style.display = "none";
+        selectedNetwork = '';
+        selectedService = '';
+        document.body.classList.remove('modal-active');
+    }
+
+    function goBackToService() {
+        transactionModal.style.display = "none";
+        serviceSelection.style.display = "flex";
+        resetForm();
+    }
+
+    // Show transaction modal with appropriate settings
+    function showTransactionModal() {
+        const title = document.getElementById('transactionTitle');
+        const withdrawCodeInput = document.getElementById('withdrawCodeInput');
+        const instructions = document.getElementById('instructions');
+        
+        // Set title
+        const networkNames = {
+            'mtn': 'MTN Mobile Money',
+            'airtel': 'Airtel Money'
+        };
+        const serviceNames = {
+            'deposit': 'Deposit',
+            'withdraw': 'Withdraw'
+        };
+        title.textContent = `${networkNames[selectedNetwork]} ${serviceNames[selectedService]}`;
+        
+        // Set network background color
+        transactionModal.className = `transaction-modal ${selectedNetwork}`;
+        
+        // Show/hide withdraw code input (only for Airtel withdraw)
+        if (selectedNetwork === 'airtel' && selectedService === 'withdraw') {
+            withdrawCodeInput.style.display = 'block';
+        } else {
+            withdrawCodeInput.style.display = 'none';
+        }
+        
+        // Show/hide instructions (only for deposits)
+        if (selectedService === 'deposit') {
+            instructions.style.display = 'block';
+        } else {
+            instructions.style.display = 'none';
+        }
+        
+        // Reset form
+        resetForm();
+        transactionModal.style.display = "flex";
+        
+        // Add visual guidance - focus and blink first field
+        setTimeout(() => {
+            const phoneInput = document.getElementById('phoneInput');
+            phoneInput.classList.add('guide');
+            phoneInput.focus();
+            
+            // Remove guide class after 3 seconds
+            setTimeout(() => {
+                phoneInput.classList.remove('guide');
+            }, 3000);
+        }, 500);
+    }
+
+    // Field click handlers and real-time validation
+    document.addEventListener('DOMContentLoaded', function() {
+        const phoneInput = document.getElementById('phoneInput');
+        const amountInput = document.getElementById('amountInput');
+        const withdrawCodeInput = document.getElementById('withdrawCodeInput');
+        const quickAmounts = document.getElementById('quickAmounts');
+        
+        // Phone input handlers
+        phoneInput.addEventListener('click', function() {
+            activeField = 'phone';
+            quickAmounts.style.display = 'none';
+        });
+        
+        phoneInput.addEventListener('blur', function() {
+            if (this.value) {
+                validatePhoneOnBlur(this.value);
+            }
+        });
+        
+        phoneInput.addEventListener('input', function() {
+            if (activeField === 'phone') {
+                // Real-time validation for obviously wrong inputs
+                validatePhoneRealTime(this.value);
+                
+                // Auto-move to amount field when phone is complete
+                if (this.value.length === 10) {
+                    const validPrefixes = {
+                        'mtn': ['076', '077', '078', '079'],
+                        'airtel': ['070', '075']
+                    };
+                    const prefix = this.value.substring(0, 3);
+                    if (validPrefixes[selectedNetwork].includes(prefix)) {
+                        setTimeout(() => {
+                            guideToNextField('amount');
+                        }, 1000);
+                    }
+                }
+            }
+        });
+        
+        // Amount input handlers
+        amountInput.addEventListener('click', function() {
+            activeField = 'amount';
+            quickAmounts.style.display = 'grid';
+        });
+        
+        amountInput.addEventListener('blur', function() {
+            if (currentAmount) {
+                validateAmountOnBlur(currentAmount);
+            }
+        });
+        
+        // Withdraw code input handlers
+        withdrawCodeInput.addEventListener('click', function() {
+            activeField = 'withdrawCode';
+            quickAmounts.style.display = 'none';
+        });
+        
+        withdrawCodeInput.addEventListener('blur', function() {
+            if (this.value) {
+                validateWithdrawCodeOnBlur(this.value);
+            }
+        });
+        
+        withdrawCodeInput.addEventListener('input', function() {
+            if (activeField === 'withdrawCode') {
+                // Real-time validation for obviously wrong inputs
+                validateWithdrawCodeRealTime(this.value);
+                
+                // Auto-move to submit when withdraw code is complete
+                if (this.value.length === 6 && /^\d{6}$/.test(this.value)) {
+                    setTimeout(() => {
+                        guideToSubmit();
+                    }, 1000);
+                }
+            }
+        });
+        
+        // Hide quick amounts when clicking outside
+        document.addEventListener('click', function(event) {
+            if (!amountInput.contains(event.target) && !quickAmounts.contains(event.target)) {
+                if (activeField === 'amount') {
+                    quickAmounts.style.display = 'none';
+                }
+            }
+        });
+    });
+
+    // Guidance functions
+    function guideToNextField(fieldName) {
+        const field = document.getElementById(fieldName + 'Input');
+        if (field) {
+            field.classList.add('guide');
+            field.focus();
+            activeField = fieldName;
+            
+            // Show quick amounts for amount field
+            if (fieldName === 'amount') {
+                document.getElementById('quickAmounts').style.display = 'grid';
+            } else {
+                document.getElementById('quickAmounts').style.display = 'none';
+            }
+            
+            // Remove guide class after 2 seconds
+            setTimeout(() => {
+                field.classList.remove('guide');
+            }, 2000);
+        }
+    }
+    
+    function guideToSubmit() {
+        const submitBtn = document.querySelector('button[onclick="submitTransaction()"]');
+        if (submitBtn) {
+            submitBtn.classList.add('guide');
+            submitBtn.style.animation = 'blink 1s infinite';
+            
+            // Remove guide class after 3 seconds
+            setTimeout(() => {
+                submitBtn.classList.remove('guide');
+                submitBtn.style.animation = '';
+            }, 3000);
+        }
+    }
+
+    // Universal keypad functions
+    function addDigit(digit) {
+        if (activeField === 'phone') {
+            const phoneInput = document.getElementById('phoneInput');
+            if (phoneInput.value.length < 10) {
+                phoneInput.value += digit;
+                // Real-time validation for obviously wrong inputs
+                validatePhoneRealTime(phoneInput.value);
+                // Auto-move to amount field when phone is complete
+                if (phoneInput.value.length === 10) {
+                    const validPrefixes = {
+                        'mtn': ['076', '077', '078', '079'],
+                        'airtel': ['070', '075']
+                    };
+                    const prefix = phoneInput.value.substring(0, 3);
+                    if (validPrefixes[selectedNetwork].includes(prefix)) {
+                        setTimeout(() => {
+                            guideToNextField('amount');
+                        }, 1000);
+                    }
+                }
+            }
+        } else if (activeField === 'amount') {
+            if (currentAmount.length < 8) {
+                currentAmount += digit;
+                updateAmountDisplay();
+                // Real-time validation for obviously wrong inputs
+                validateAmountRealTime(currentAmount);
+            }
+        } else if (activeField === 'withdrawCode') {
+            const withdrawCodeInput = document.getElementById('withdrawCodeInput');
+            if (withdrawCodeInput.value.length < 6) {
+                withdrawCodeInput.value += digit;
+                // Real-time validation for obviously wrong inputs
+                validateWithdrawCodeRealTime(withdrawCodeInput.value);
+                // Auto-move to submit when withdraw code is complete
+                if (withdrawCodeInput.value.length === 6 && /^\d{6}$/.test(withdrawCodeInput.value)) {
+                    setTimeout(() => {
+                        guideToSubmit();
+                    }, 1000);
+                }
+            }
+        }
+    }
+
+    function setQuickAmount(amount) {
+        if (activeField === 'amount') {
+            const currentTime = new Date().getTime();
+            if (currentTime - lastClickTime < 500) { // Double click
+                currentAmount = (parseInt(currentAmount || '0') + amount).toString();
+            } else { // Single click
+                currentAmount = amount.toString();
+            }
+            lastClickTime = currentTime;
+            updateAmountDisplay();
+            // Real-time validation for obviously wrong inputs
+            validateAmountRealTime(currentAmount);
+        }
+    }
+
+    function clearAmount() {
+        if (activeField === 'phone') {
+            const phoneInput = document.getElementById('phoneInput');
+            phoneInput.value = '';
+            phoneInput.classList.remove('error', 'success', 'guide');
+            document.getElementById('phoneError').style.display = 'none';
+        } else if (activeField === 'amount') {
+            currentAmount = '';
+            updateAmountDisplay();
+            const amountInput = document.getElementById('amountInput');
+            amountInput.classList.remove('error', 'success', 'guide');
+            document.getElementById('amountError').style.display = 'none';
+        } else if (activeField === 'withdrawCode') {
+            const withdrawCodeInput = document.getElementById('withdrawCodeInput');
+            withdrawCodeInput.value = '';
+            withdrawCodeInput.classList.remove('error', 'success', 'guide');
+            document.getElementById('withdrawCodeError').style.display = 'none';
+        }
+    }
+
+    function updateAmountDisplay() {
+        const input = document.getElementById('amountInput');
+        if (currentAmount === '') {
+            input.value = '';
+        } else {
+            const formatted = parseInt(currentAmount).toLocaleString();
+            input.value = formatted;
+        }
+    }
+
+    // Smart validation functions
+    function validatePhoneRealTime(phone) {
+        const phoneInput = document.getElementById('phoneInput');
+        const phoneError = document.getElementById('phoneError');
+        
+        // Clear previous states
+        phoneInput.classList.remove('error', 'success', 'guide');
+        phoneError.style.display = 'none';
+        
+        if (!phone) {
+            return false; // Don't show error for empty field
+        }
+        
+        // Only show prefix errors in real-time (obviously wrong)
+        if (phone.length >= 3) {
+            const validPrefixes = {
+                'mtn': ['076', '077', '078', '079'],
+                'airtel': ['070', '075']
+            };
+            
+            const prefix = phone.substring(0, 3);
+            if (!validPrefixes[selectedNetwork].includes(prefix)) {
+                const networkName = selectedNetwork === 'mtn' ? 'MTN' : 'Airtel';
+                const validPrefixesList = validPrefixes[selectedNetwork].join(', ');
+                showError(phoneInput, phoneError, `${networkName} numbers must start with: ${validPrefixesList}`);
+                return false;
+            }
+        }
+        
+        // Valid prefix - clear any errors
+        clearValidationState(phoneInput, phoneError);
+        return true;
+    }
+    
+    function validatePhoneOnBlur(phone) {
+        const phoneInput = document.getElementById('phoneInput');
+        const phoneError = document.getElementById('phoneError');
+        
+        // Clear previous states
+        phoneInput.classList.remove('error', 'success', 'guide');
+        phoneError.style.display = 'none';
+        
+        if (!phone) {
+            return false; // Don't show error for empty field
+        }
+        
+        if (phone.length !== 10) {
+            showError(phoneInput, phoneError, 'Phone number must be 10 digits');
+            return false;
+        }
+        
+        const validPrefixes = {
+            'mtn': ['076', '077', '078', '079'],
+            'airtel': ['070', '075']
+        };
+        
+        const prefix = phone.substring(0, 3);
+        if (!validPrefixes[selectedNetwork].includes(prefix)) {
+            const networkName = selectedNetwork === 'mtn' ? 'MTN' : 'Airtel';
+            const validPrefixesList = validPrefixes[selectedNetwork].join(', ');
+            showError(phoneInput, phoneError, `${networkName} numbers must start with: ${validPrefixesList}`);
+            return false;
+        }
+        
+        // Valid phone number - clear any errors
+        clearValidationState(phoneInput, phoneError);
+        return true;
+    }
+    
+    function validateAmountRealTime(amount) {
+        const amountInput = document.getElementById('amountInput');
+        const amountError = document.getElementById('amountError');
+        
+        // Clear previous states
+        amountInput.classList.remove('error', 'success', 'guide');
+        amountError.style.display = 'none';
+        
+        if (!amount || amount === '') {
+            return false; // Don't show error for empty field
+        }
+        
+        const numAmount = parseInt(amount);
+        if (isNaN(numAmount)) {
+            showError(amountInput, amountError, 'Please enter a valid number');
+            return false;
+        }
+        
+        // Only show obviously wrong errors in real-time
+        if (numAmount > 2000000) {
+            showError(amountInput, amountError, 'Maximum amount is UGX 2,000,000');
+            return false;
+        }
+        
+        // Valid amount - clear any errors
+        clearValidationState(amountInput, amountError);
+        return true;
+    }
+    
+    function validateAmountOnBlur(amount) {
+        const amountInput = document.getElementById('amountInput');
+        const amountError = document.getElementById('amountError');
+        
+        // Clear previous states
+        amountInput.classList.remove('error', 'success', 'guide');
+        amountError.style.display = 'none';
+        
+        if (!amount || amount === '') {
+            return false; // Don't show error for empty field
+        }
+        
+        const numAmount = parseInt(amount);
+        if (isNaN(numAmount) || numAmount < 500) {
+            showError(amountInput, amountError, 'Minimum amount is UGX 500');
+            return false;
+        }
+        
+        if (numAmount > 2000000) {
+            showError(amountInput, amountError, 'Maximum amount is UGX 2,000,000');
+            return false;
+        }
+        
+        // Valid amount - clear any errors
+        clearValidationState(amountInput, amountError);
+        return true;
+    }
+    
+    function validateWithdrawCodeRealTime(code) {
+        const withdrawCodeInput = document.getElementById('withdrawCodeInput');
+        const withdrawCodeError = document.getElementById('withdrawCodeError');
+        
+        // Clear previous states
+        withdrawCodeInput.classList.remove('error', 'success', 'guide');
+        withdrawCodeError.style.display = 'none';
+        
+        if (!code) {
+            return false; // Don't show error for empty field
+        }
+        
+        // Only show obviously wrong errors in real-time (non-numeric characters)
+        if (!/^\d*$/.test(code)) {
+            showError(withdrawCodeInput, withdrawCodeError, 'Withdraw code must contain only numbers');
+            return false;
+        }
+        
+        // Valid format - clear any errors
+        clearValidationState(withdrawCodeInput, withdrawCodeError);
+        return true;
+    }
+    
+    function validateWithdrawCodeOnBlur(code) {
+        const withdrawCodeInput = document.getElementById('withdrawCodeInput');
+        const withdrawCodeError = document.getElementById('withdrawCodeError');
+        
+        // Clear previous states
+        withdrawCodeInput.classList.remove('error', 'success', 'guide');
+        withdrawCodeError.style.display = 'none';
+        
+        if (!code) {
+            return false; // Don't show error for empty field
+        }
+        
+        if (code.length !== 6) {
+            showError(withdrawCodeInput, withdrawCodeError, 'Withdraw code must be exactly 6 digits');
+            return false;
+        }
+        
+        if (!/^\d{6}$/.test(code)) {
+            showError(withdrawCodeInput, withdrawCodeError, 'Withdraw code must contain only numbers');
+            return false;
+        }
+        
+        // Valid withdraw code - clear any errors
+        clearValidationState(withdrawCodeInput, withdrawCodeError);
+        return true;
+    }
+    
+    function showError(input, errorDiv, message) {
+        input.classList.remove('success', 'guide');
+        input.classList.add('error');
+        errorDiv.textContent = message;
+        errorDiv.style.display = 'block';
+        errorDiv.style.color = '#dc3545'; // Red color for error
+    }
+    
+    function clearValidationState(input, errorDiv) {
+        input.classList.remove('error', 'success', 'guide');
+        errorDiv.style.display = 'none';
+        errorDiv.textContent = '';
+    }
+
+    // Submit transaction
+    function submitTransaction() {
+        const phone = document.getElementById('phoneInput').value;
+        const withdrawCode = document.getElementById('withdrawCodeInput').value;
+        
+        // Validate all fields
+        let isValid = true;
+        
+        if (!validatePhoneOnBlur(phone)) {
+            isValid = false;
+        }
+        
+        if (!validateAmountOnBlur(currentAmount)) {
+            isValid = false;
+        }
+        
+        if (selectedNetwork === 'airtel' && selectedService === 'withdraw') {
+            if (!validateWithdrawCodeOnBlur(withdrawCode)) {
+                isValid = false;
+            }
+        }
+        
+        if (!isValid) {
+            return;
+        }
+        
+        // Show processing screen
+        showProcessingScreen();
+    }
+
+    // Processing screen functions
+    function showProcessingScreen() {
+        console.log('Showing processing screen for:', selectedNetwork, selectedService);
+        
+        const processingScreen = document.getElementById('processingScreen');
+        const processingTitle = document.getElementById('processingTitle');
+        const processingMessage = document.getElementById('processingMessage');
+        const pinInstruction = document.getElementById('pinInstruction');
+        const processingSteps = document.getElementById('processingSteps');
+        
+        // Reset processing screen elements
+        processingSteps.style.display = 'block';
+        pinInstruction.style.display = 'none';
+        
+        // Set title based on transaction type
+        const networkNames = {
+            'mtn': 'MTN Mobile Money',
+            'airtel': 'Airtel Money'
+        };
+        const serviceNames = {
+            'deposit': 'Deposit',
+            'withdraw': 'Withdrawal'
+        };
+        
+        processingTitle.textContent = `Processing ${networkNames[selectedNetwork]} ${serviceNames[selectedService]}`;
+        
+        // Set message based on transaction type
+        if (selectedService === 'deposit') {
+            processingMessage.textContent = 'Processing your deposit. Please wait...';
+            pinInstruction.style.display = 'none';
+        } else if (selectedNetwork === 'mtn' && selectedService === 'withdraw') {
+            processingMessage.textContent = 'Processing withdrawal. Please enter your PIN on your phone when prompted.';
+            pinInstruction.style.display = 'block';
+        } else if (selectedNetwork === 'airtel' && selectedService === 'withdraw') {
+            processingMessage.textContent = 'Processing withdrawal. No PIN required - transaction is pre-approved.';
+            pinInstruction.style.display = 'none';
+        }
+        
+        // Hide transaction modal and show processing screen
+        transactionModal.style.display = 'none';
+        processingScreen.style.display = 'flex';
+        
+        console.log('Processing screen display set to flex');
+        
+        // Reset animation colors
+        const spinner = document.querySelector('.spinner');
+        const pulseDot = document.querySelector('.pulse-dot');
+        if (spinner) spinner.style.borderTopColor = '#007bff';
+        if (pulseDot) pulseDot.style.backgroundColor = '#007bff';
+        
+        // Start processing animation
+        startProcessingAnimation();
+    }
+    
+    function startProcessingAnimation() {
+        console.log('Starting processing animation');
+        const steps = ['step1', 'step2', 'step3', 'step4'];
+        let currentStep = 0;
+        
+        // Reset all steps to pending
+        steps.forEach(stepId => {
+            const step = document.getElementById(stepId);
+            if (step) {
+                step.className = 'step-icon pending';
+            }
+        });
+        
+        // Animate through steps
+        const animateStep = () => {
+            console.log('Animating step:', currentStep);
+            if (currentStep < steps.length) {
+                const step = document.getElementById(steps[currentStep]);
+                if (step) {
+                    step.className = 'step-icon processing';
+                }
+                
+                setTimeout(() => {
+                    if (step) {
+                        step.className = 'step-icon';
+                    }
+                    currentStep++;
+                    animateStep();
+                }, 2000); // 2 seconds per step
+            } else {
+                // All steps completed, show completion
+                console.log('All steps completed, showing completion');
+                setTimeout(() => {
+                    showTransactionComplete();
+                }, 1000);
+            }
+        };
+        
+        // Start animation
+        setTimeout(animateStep, 500);
+    }
+    
+    function showTransactionComplete() {
+        const processingScreen = document.getElementById('processingScreen');
+        const processingTitle = document.getElementById('processingTitle');
+        const processingMessage = document.getElementById('processingMessage');
+        const processingSteps = document.getElementById('processingSteps');
+        const pinInstruction = document.getElementById('pinInstruction');
+        
+        // Update content for completion
+        processingTitle.textContent = 'Transaction Complete!';
+        processingMessage.textContent = 'Your transaction has been processed successfully.';
+        processingSteps.style.display = 'none';
+        pinInstruction.style.display = 'none';
+        
+        // Change animation to success
+        const spinner = document.querySelector('.spinner');
+        const pulseDot = document.querySelector('.pulse-dot');
+        spinner.style.borderTopColor = '#28a745';
+        pulseDot.style.backgroundColor = '#28a745';
+        
+        // Auto-close after 3 seconds
+        setTimeout(() => {
+            processingScreen.style.display = 'none';
+            resetForm();
+            // Return to main screen
+            document.body.classList.remove('modal-active');
+        }, 3000);
+    }
+
+    function resetForm() {
+        currentAmount = '';
+        activeField = null;
+        document.getElementById('phoneInput').value = '';
+        document.getElementById('withdrawCodeInput').value = '';
+        document.getElementById('quickAmounts').style.display = 'none';
+        
+        // Clear all error states
+        const inputs = ['phoneInput', 'amountInput', 'withdrawCodeInput'];
+        const errors = ['phoneError', 'amountError', 'withdrawCodeError'];
+        
+        inputs.forEach((inputId, index) => {
+            const input = document.getElementById(inputId);
+            const error = document.getElementById(errors[index]);
+            input.classList.remove('error', 'success', 'guide');
+            error.style.display = 'none';
+            error.textContent = '';
+        });
+        
+        updateAmountDisplay();
+    }
+
+    // Remove click-outside functionality since we have back buttons
+    // Users must use the back button to navigate
+</script>
+
+</body>
+</html>
